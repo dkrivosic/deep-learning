@@ -1,3 +1,6 @@
+import numpy as np
+import random
+
 def sample_gmm_2d(K, C, N):
     X = np.zeros((K*N, 2), dtype=float)
     Y = np.zeros((K*N), dtype=float)
