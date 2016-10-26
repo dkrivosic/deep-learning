@@ -22,7 +22,9 @@ class TFDeep:
         regularization_loss = 0
         for w in self.W:
             regularization_loss += tf.nn.l2_loss(w)
-        self.loss = tf.reduce_mean(-tf.reduce_sum(tf.mul(tf.log(self.probs), self.Yoh_), reduction_indices=1)) + param_lambda * regularization_loss
+        self.loss = tf.reduce_mean(-tf.reduce_sum(
+            tf.mul(tf.log(tf.clip_by_value(self.probs,1e-10,1.0)), self.Yoh_), reduction_indices=1
+            )) + param_lambda * regularization_loss
 
         trainer = tf.train.GradientDescentOptimizer(param_delta)
         self.train_step = trainer.minimize(self.loss)
@@ -33,6 +35,45 @@ class TFDeep:
         for i in range(param_niter):
             loss = self.session.run([self.loss, self.train_step] + self.W + self.b,
                                             feed_dict={self.X: X, self.Yoh_: Yoh_})[0]
+            if i % 10 == 0:
+                print(i, loss)
+
+    def train_es(self, X, Yoh_, X_val, Yoh_val, param_niter, patience):
+        best_loss = -1
+        best_W = None
+        best_b = None
+        j = 0
+
+        self.session.run(tf.initialize_all_variables())
+        for i in range(param_niter):
+            j += 1
+            loss = self.session.run([self.loss, self.train_step] + self.W + self.b,
+                                            feed_dict={self.X: X, self.Yoh_: Yoh_})[0]
+            if i % 10 == 0:
+                print(i, loss)
+                val_loss = self.session.run([self.loss], feed_dict={self.X: X_val, self.Yoh_: Yoh_val})[0]
+                if best_W == None or val_loss < best_loss:
+                    j = 0
+                    best_loss = val_loss
+                    best_W = self.W
+                    best_b = self.b
+
+            if j > patience:
+                self.W = best_W
+                self.b = best_b
+                break
+
+    def train_mb(self, X, Yoh_, param_niter, batch_size):
+        self.session.run(tf.initialize_all_variables())
+        for i in range(param_niter):
+            n_batches = int(X.shape[0] / batch_size)
+            indices = np.random.permutation(X.shape[0])
+            for j in range(n_batches):
+                from_i = j * batch_size
+                to_i = min((j+1) * batch_size, X.shape[0])
+                loss = self.session.run([self.loss, self.train_step] + self.W + self.b,
+                                        feed_dict={self.X: X[indices[from_i : to_i], :],
+                                                   self.Yoh_: Yoh_[indices[from_i : to_i], :]})[0]
             if i % 10 == 0:
                 print(i, loss)
 
