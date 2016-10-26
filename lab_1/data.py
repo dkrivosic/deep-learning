@@ -9,7 +9,6 @@ def sample_gmm_2d(K, C, N):
         mean = np.random.uniform(-10, 10)
         sigma = np.random.uniform(0, 5)
         c_i = np.random.choice(range(C))
-        print(c_i)
         for j in range(N):
             X[i*N+j] = np.random.uniform(mean, sigma, 2)
             Y[i*N+j] = c_i
