@@ -1,5 +1,4 @@
 import numpy as np
-import random
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -9,10 +8,11 @@ def sample_gmm_2d(K, C, N):
     for i in range(K):
         mean = np.random.uniform(-10, 10)
         sigma = np.random.uniform(0, 5)
-        c_i = random.sample(range(C), 1)
+        c_i = np.random.choice(range(C))
+        print(c_i)
         for j in range(N):
             X[i*N+j] = np.random.uniform(mean, sigma, 2)
-            Y[i*N+j] = c_i[0]
+            Y[i*N+j] = c_i
     return (X, Y)
 
 def eval_perf_binary(Y, Y_):
