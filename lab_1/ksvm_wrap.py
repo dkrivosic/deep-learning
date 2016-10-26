@@ -17,6 +17,7 @@ class KSVMWrap:
         return self.clf.support_
 
 if __name__ == "__main__":
+    np.random.seed(100)
     (X, Y_) = data.sample_gmm_2d(6, 2, 10)
     ksvm = KSVMWrap(X, Y_)
     Y = ksvm.predict(X)
