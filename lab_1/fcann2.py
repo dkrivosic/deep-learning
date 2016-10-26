@@ -10,8 +10,6 @@ def fcann2_train(X, Y_, iterations=1000, param_delta=1e-4, h=5):
     W2 = np.random.randn(h, K)
     b2 = np.zeros((1, K))
 
-    print(W1, b1, W2, b2)
-
     for i in range(iterations):
         hidden_layer = np.maximum(0, np.dot(X, W1) + b1)
         # eksponencirani klasifikacijski rezultati
