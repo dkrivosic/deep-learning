@@ -1,4 +1,5 @@
 import numpy as np
+import data
 
 def fcann2_train(X, Y_, iterations=1000, param_delta=1e-4, h=5):
     Y_ = Y_.astype(int)
@@ -58,3 +59,12 @@ def fcann2_classify(W1, b1, W2, b2):
         scores = np.dot(hidden_layer, W2) + b2
         return np.argmax(scores, axis=1)
     return classify
+
+if __name__ == '__main__':
+    (X, Y_) = data.sample_gmm_2d(6, 2, 10)
+    W1, b1, W2, b2 = fcann2_train(X, Y_)
+    classify = fcann2_classify(W1, b1, W2, b2)
+    Y = classify(X)
+    bbox = (np.min(X, axis=0), np.max(X, axis=0))
+    data.graph_surface(classify, bbox)
+    data.graph_data(X, Y_, Y)

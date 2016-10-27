@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import data
 
 class TFDeep:
     def __init__(self, layers, param_delta=0.5, param_lambda=0.1):
@@ -88,3 +89,19 @@ class TFDeep:
             total_count += self.h[i] * self.h[i-1]
         total_count += sum(self.h[1:])
         print("Total parameter count: " + str(total_count))
+
+if __name__ == '__main__':
+    (X, Y_) = data.sample_gmm_2d(6, 2, 10)
+    N, D = X.shape
+    C = 2
+    Yoh_ = np.zeros((N, C))
+    Yoh_[range(N), Y_.astype(int)] = 1
+    model = TFDeep([2, 3, 2])
+    model.train(X, Yoh_, 1000)
+    probs = model.eval(X)
+    model.count_params()
+    Y = np.argmax(probs, axis=1)
+    print(data.eval_perf_binary(Y, np.argmax(Yoh_, axis=1)))
+    bbox = (np.min(X, axis=0), np.max(X, axis=0))
+    data.graph_surface(model.eval, bbox, offset=0.5)
+    data.graph_data(X, Y_, Y)

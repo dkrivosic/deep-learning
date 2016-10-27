@@ -47,7 +47,22 @@ def graph_surface(fun, rect, offset=0.0, width=1000, height=1000):
     x2 = np.linspace(rect[0][1], rect[1][1], width)
     xx, yy = np.meshgrid(x1, x2)
     h = fun(np.stack([xx.flatten(), yy.flatten()], axis=1))
+    if len(h.shape) > 1:
+        h = h[:, 1]
     h = h.reshape(xx.shape)
     plt.contour(xx, yy, h, colors='black', levels=[offset])
-    norm = matplotlib.colors.Normalize(vmin=offset+min(rect[0][0], rect[0][1]),vmax=offset+max(rect[1][0], rect[1][1]))
+    m = abs(h.flatten().max())
+    norm = matplotlib.colors.Normalize(vmin=offset-m,vmax=m+offset)
     plt.pcolormesh(xx, yy, h, norm=norm)
+
+def myDummyDecision(X):
+    score = X[:,0] + X[:,1] - 5
+    return score
+
+if __name__ == "__main__":
+    np.random.seed(1000)
+    tf.random.seed(1000)
+    (X, Y_) = sample_gmm_2d(4, 2, 30)
+    bbox = (np.min(X, axis=0), np.max(X, axis=0))
+    graph_surface(myDummyDecision, bbox, offset=0.5)
+    graph_data(X, Y_, myDummyDecision(X))
