@@ -27,13 +27,18 @@ class TFDeep:
             tf.mul(tf.log(tf.clip_by_value(self.probs,1e-10,1.0)), self.Yoh_), reduction_indices=1
             )) + param_lambda * regularization_loss
 
-        trainer = tf.train.GradientDescentOptimizer(param_delta)
+        # trainer = tf.train.GradientDescentOptimizer(param_delta)
+        self.global_step = tf.Variable(0, trainable=False)
+        learning_rate = tf.train.exponential_decay(param_delta, self.global_step,
+                                                    1, 1-1e-4, staircase=True)
+        trainer = tf.train.AdamOptimizer(1e-4)
         self.train_step = trainer.minimize(self.loss)
         self.session = tf.Session()
 
     def train(self, X, Yoh_, param_niter):
         self.session.run(tf.initialize_all_variables())
         for i in range(param_niter):
+            self.global_step.assign(self.global_step + 1)
             loss = self.session.run([self.loss, self.train_step] + self.W + self.b,
                                             feed_dict={self.X: X, self.Yoh_: Yoh_})[0]
             if i % 10 == 0:
