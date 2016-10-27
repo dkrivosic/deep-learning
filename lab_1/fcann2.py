@@ -1,7 +1,7 @@
 import numpy as np
 import data
 
-def fcann2_train(X, Y_, iterations=1000, param_delta=1e-4, h=5):
+def fcann2_train(X, Y_, iterations=1000, param_delta=0.05, param_lambda=1e-3, h=5):
     Y_ = Y_.astype(int)
     N, D = X.shape
     K = max(Y_) + 1
@@ -25,7 +25,7 @@ def fcann2_train(X, Y_, iterations=1000, param_delta=1e-4, h=5):
         logprobs = -np.log(probs[range(N), Y_])
 
         # gubitak
-        loss  = np.sum(logprobs) / N
+        loss  = np.sum(logprobs) / N + param_lambda * (np.sum(np.square(W1)) + np.sum(np.square(W2)))
 
         # dijagnostički ispis
         if i % 10 == 0:
@@ -43,8 +43,8 @@ def fcann2_train(X, Y_, iterations=1000, param_delta=1e-4, h=5):
         grad_hidden = np.dot(dL_ds, W2.T)
         grad_hidden[hidden_layer <= 0] = 0
 
-        grad_W1 = np.dot(X.T, grad_hidden)    # C x D (ili D x C)
-        grad_b1 = np.sum(grad_hidden, axis=0, keepdims=True)    # C x 1 (ili 1 x C)
+        grad_W1 = np.dot(X.T, grad_hidden)
+        grad_b1 = np.sum(grad_hidden, axis=0, keepdims=True)
 
         # poboljšani parametri
         W1 += -param_delta * grad_W1
@@ -57,7 +57,8 @@ def fcann2_classify(W1, b1, W2, b2):
     def classify(X):
         hidden_layer = np.maximum(0, np.dot(X, W1) + b1)
         scores = np.dot(hidden_layer, W2) + b2
-        return np.argmax(scores, axis=1)
+        # return np.argmax(scores, axis=1)
+        return scores
     return classify
 
 if __name__ == '__main__':
@@ -67,4 +68,4 @@ if __name__ == '__main__':
     Y = classify(X)
     bbox = (np.min(X, axis=0), np.max(X, axis=0))
     data.graph_surface(classify, bbox)
-    data.graph_data(X, Y_, Y)
+    data.graph_data(X, Y_, np.argmax(Y, axis=1))
