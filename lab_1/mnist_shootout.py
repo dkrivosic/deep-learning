@@ -2,6 +2,8 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tf_deep import TFDeep
 import numpy as np
+from sklearn import svm
+import data
 
 tf.app.flags.DEFINE_string('data_dir', '/tmp/data/', 'Directory for storing data')
 mnist = input_data.read_data_sets(tf.app.flags.FLAGS.data_dir, one_hot=True)
@@ -62,3 +64,13 @@ Y_train = np.argmax(model.eval(mnist.train.images), axis=1)
 Y_test = np.argmax(model.eval(mnist.test.images), axis=1)
 print("Train accuracy: {}".format(sum(Y_train == Y_train_) / Y_train_.shape[0]))
 print("Test accuracy: {}".format(sum(Y_test == Y_test_) / Y_test_.shape[0]))
+
+# # SVM with gaussian kernel
+# clf = svm.SVC( decision_function_shape='ovo', max_iter=10)
+# clf.fit(mnist.train.images, np.argmax(mnist.train.labels, axis=1))
+# Y = clf.predict(mnist.train.images)
+#
+# # SVM with linear kernel
+# clf = svm.LinearSVC(multi_class='ovo')
+# clf.fit(mnist.train.images, np.argmax(mnist.train.labels, axis=1))
+# Y = clf.predict(mnist.train.images)
