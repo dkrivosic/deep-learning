@@ -16,7 +16,7 @@ def eval_numerical_gradient(f, x, df, h=1e-5):
   it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
   while not it.finished:
     ix = it.multi_index
-    
+
     oldval = x[ix]
     x[ix] = oldval + h
     # evaluate f(x + h)
@@ -25,7 +25,7 @@ def eval_numerical_gradient(f, x, df, h=1e-5):
     # evaluate f(x - h)
     neg = f(x).copy()
     x[ix] = oldval
-    
+
     # compute the partial derivative with centered formula
     grad[ix] = np.sum((pos - neg) * df) / (2 * h)
     # step to next dimension
@@ -108,4 +108,3 @@ out = loss.forward(x, y)
 grad_x = loss.backward_inputs(x, y)
 print("Relative error = ", rel_error(grad_x_num, grad_x))
 print("Error norm = ", np.linalg.norm(grad_x_num - grad_x))
-

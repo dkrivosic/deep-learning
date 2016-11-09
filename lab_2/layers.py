@@ -207,8 +207,8 @@ class FC(Layer):
     Returns:
       An ndarray of shape (N, num_outputs)
     """
-    # TODO
-    pass
+    self.x = inputs
+    return inputs.dot(self.weights.T) + self.bias
 
   def backward_inputs(self, grads):
     """
@@ -217,8 +217,7 @@ class FC(Layer):
     Returns:
       An ndarray of shape (N, num_inputs)
     """
-    # TODO
-    pass
+    return grads.dot(self.weights)
 
   def backward_params(self, grads):
     """
@@ -227,9 +226,8 @@ class FC(Layer):
     Returns:
       List of params and gradient pairs.
     """
-    # TODO
-    grad_weights = ...
-    grad_bias = ...
+    grad_weights = grads.T.dot(self.x)
+    grad_bias = np.sum(grads, axis=0)
     return [[self.weights, grad_weights], [self.bias, grad_bias], self.name]
 
 
@@ -247,8 +245,8 @@ class ReLU(Layer):
     Returns:
       ndarray of shape (N, C, H, W).
     """
-    # TODO
-    pass
+    self.x = inputs
+    return np.maximum(0, inputs)
 
   def backward_inputs(self, grads):
     """
@@ -257,8 +255,7 @@ class ReLU(Layer):
     Returns:
       ndarray of shape (N, C, H, W).
     """
-    # TODO
-    pass
+    return np.multiply(grads, (self.x >= 0).astype(float))
 
 
 class SoftmaxCrossEntropyWithLogits():
@@ -276,8 +273,12 @@ class SoftmaxCrossEntropyWithLogits():
       because then learning rate and weight decay won't depend on batch size.
 
     """
-    # TODO
-    pass
+    N = x.shape[0]
+    y_i = np.argmax(y, axis=1)
+    e_x = np.exp(x)
+    sums = np.sum(e_x, axis=1).reshape(N, 1)
+    loss = np.log(sums) - np.sum(np.multiply(x, y), axis=1)
+    return loss / N
 
   def backward_inputs(self, x, y):
     """
@@ -288,8 +289,11 @@ class SoftmaxCrossEntropyWithLogits():
       Gradient with respect to the x, ndarray of shape (N, num_classes).
     """
     # Hint: don't forget that we took the average in the forward pass
-    # TODO
-    pass
+    N = x.shape[0]
+    e_x = np.exp(x)
+    sums = np.sum(e_x, axis=1).reshape(N, 1)
+    s = e_x / sums
+    return s - y
 
 
 class L2Regularizer():
@@ -344,4 +348,3 @@ class RegularizedLoss():
     for loss in self.regularizer_losses:
       grads += [loss.backward_params()]
     return grads
-
