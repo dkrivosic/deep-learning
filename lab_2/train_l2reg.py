@@ -8,8 +8,8 @@ import nn
 
 import layers
 
-DATA_DIR = '/home/kivan/datasets/MNIST/'
-SAVE_DIR = "/home/kivan/source/fer/out/"
+DATA_DIR = '/Users/domagoj/fer/deep-learning/lab_2/data'
+SAVE_DIR = '/Users/domagoj/fer/deep-learning/lab_2/save'
 
 config = {}
 config['max_epochs'] = 8
@@ -18,7 +18,7 @@ config['save_dir'] = SAVE_DIR
 config['weight_decay'] = 1e-3
 config['lr_policy'] = {1:{'lr':1e-1}, 3:{'lr':1e-2}, 5:{'lr':1e-3}, 7:{'lr':1e-4}}
 
-#np.random.seed(100) 
+#np.random.seed(100)
 np.random.seed(int(time.time() * 1e6) % 2**31)
 dataset = input_data.read_data_sets(DATA_DIR, one_hot=True)
 train_x = dataset.train.images
@@ -59,4 +59,3 @@ loss = layers.RegularizedLoss(data_loss, regularizers)
 
 nn.train(train_x, train_y, valid_x, valid_y, net, loss, config)
 nn.evaluate("Test", test_x, test_y, net, loss, config)
-
