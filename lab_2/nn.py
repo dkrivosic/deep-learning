@@ -33,7 +33,7 @@ def sgd_update_params(grads, config):
       grads = layer_grads[i][1]
       #print(layer_grads[-1], " -> ", grads.sum())
       params -= lr * grads
-      
+
 
 def draw_conv_filters(epoch, step, layer, save_dir):
   C = layer.C
@@ -124,4 +124,3 @@ def evaluate(name, x, y, net, loss, config):
   loss_avg /= num_batches
   print(name + " accuracy = %.2f" % valid_acc)
   print(name + " avg loss = %.2f\n" % loss_avg)
-
