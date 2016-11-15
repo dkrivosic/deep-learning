@@ -267,10 +267,10 @@ class SoftmaxCrossEntropyWithLogits():
 
     """
     N = x.shape[0]
-    y_i = np.argmax(y, axis=1)
     e_x = np.exp(x)
-    sums = np.sum(e_x, axis=1).reshape(N, 1)
-    loss = np.log(sums) - np.sum(np.multiply(x, y), axis=1)
+    sums = np.sum(e_x, axis=1, keepdims=True)
+    s = e_x / sums
+    loss = -np.sum(np.multiply(np.log(s), y))
     return loss / N
 
   def backward_inputs(self, x, y):
@@ -286,7 +286,7 @@ class SoftmaxCrossEntropyWithLogits():
     e_x = np.exp(x)
     sums = np.sum(e_x, axis=1).reshape(N, 1)
     s = e_x / sums
-    return s - y
+    return (s - y) / N
 
 
 class L2Regularizer():
@@ -307,7 +307,7 @@ class L2Regularizer():
      Returns:
       Scalar, loss due to the L2 regularization.
     """
-    return self.weight_decay * np.sum(self.weights.T.dot(self.weights))
+    return self.weight_decay * np.sum(self.weights ** 2)
 
   def backward_params(self):
     """
