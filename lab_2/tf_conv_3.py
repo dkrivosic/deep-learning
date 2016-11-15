@@ -19,6 +19,8 @@ DATA_DIR = '/Users/domagoj/fer/deep-learning/lab_2/data'
 mnist = input_data.read_data_sets(DATA_DIR, one_hot=True)
 num_classes = 10
 weight_decay = 0.1
+batch_size = 50
+epochs = 100
 
 y_ = tf.placeholder(tf.float32, [None, num_classes])
 x = tf.placeholder(tf.float32, [None, 784])
@@ -55,12 +57,15 @@ with tf.Session() as sess:
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     sess.run(tf.initialize_all_variables())
 
-    for i in range(20000):
-        batch = mnist.train.next_batch(50)
-        if i%100 == 0:
-            train_accuracy = accuracy.eval(feed_dict={x:batch[0], y_: batch[1]})
-            print("step %d, training accuracy %g"%(i, train_accuracy))
-            train_step.run(feed_dict={x: batch[0], y_: batch[1]})
+    for epoch in range(epochs):
+        print("Epoch %d"%(epoch))
+        num_batches = mnist.train.num_examples // batch_size
+        for i in range(num_batches):
+            batch = mnist.train.next_batch(batch_size)
+            if (i+1)%100 == 0:
+                train_accuracy = accuracy.eval(feed_dict={x:batch[0], y_: batch[1]})
+                print("step %d/%d, training accuracy %g"%(i+1, mnist.train.num_examples//batch_size, train_accuracy))
+                train_step.run(feed_dict={x: batch[0], y_: batch[1]})
 
     print("test accuracy %g"%accuracy.eval(feed_dict={
     x: mnist.test.images, y_: mnist.test.labels}))
