@@ -32,8 +32,6 @@ def evaluate(y_, y, num_classes):
     for i in range(num_classes):
         correct_predictions += confusion_matrix[i][i]
     accuracy = correct_predictions / (y_.shape[0])
-    # precision = confusion_matrix[1][1] / (confusion_matrix[0][1] + confusion_matrix[1][1])
-    # recall = confusion_matrix[1][1] / (confusion_matrix[1][0] + confusion_matrix[1][1])
     return (accuracy, confusion_matrix)
 
 def draw_conv_filters(epoch, step, weights, save_dir):
@@ -95,14 +93,13 @@ num_classes = 10
 img_height = 32
 img_width = 32
 num_channels = 3
-weight_decay = 1e-3
+weight_decay = 1e-4
 N = train_x.shape[0]
 epochs = 8
 batch_size = 50
 num_batches = N // batch_size
 global_step = tf.Variable(1e-1, trainable=False)
-learning_rate = learning_rate = tf.train.exponential_decay(1e-1, global_step,
-                                           epochs * num_batches, 0.96, staircase=True)
+learning_rate = 5e-2
 
 # Initialize plot data
 plot_data = {}
@@ -142,46 +139,38 @@ b_fc3 = bias_variable([num_classes])
 
 y = tf.matmul(h_4, W_fc3) + b_fc3
 
+cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, y_) +
+    weight_decay * (tf.nn.l2_loss(W_conv1)**2 + tf.nn.l2_loss(W_conv2)**2 + tf.nn.l2_loss(W_fc1)**2 +
+    tf.nn.l2_loss(W_fc2)**2 + tf.nn.l2_loss(W_fc3)**2))
+train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
+correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+# Data preprocessing
+train_y_oh = np.zeros((N, num_classes))
+for i in range(N):
+    train_y_oh[i][train_y[i]] = 1
+
+test_y_oh = np.zeros((test_y.shape[0], num_classes))
+for i in range(test_y.shape[0]):
+    test_y_oh[i][test_y[i]] = 1
+
 # Training
 with tf.Session() as sess:
-    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, y_) +
-        weight_decay * tf.nn.l2_loss(W_conv1) + weight_decay * tf.nn.l2_loss(W_conv2) +
-        weight_decay * tf.nn.l2_loss(W_fc1) + weight_decay * tf.nn.l2_loss(W_fc2))
-    train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy, global_step=global_step)
-    # train_step = tf.train.AdamOptimizer(1e-3).minimize(cross_entropy)
-    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     sess.run(tf.initialize_all_variables())
-
-    # Prepare data
-    train_y_oh = np.zeros((N, num_classes))
-    for i in range(N):
-        train_y_oh[i][train_y[i]] = 1
-
-    test_y_oh = np.zeros((test_y.shape[0], num_classes))
-    for i in range(test_y.shape[0]):
-        test_y_oh[i][test_y[i]] = 1
-
     for epoch in range(epochs):
-        train_x, train_y = shuffle_data(train_x, train_y)
+        train_x, train_y_oh = shuffle_data(train_x, train_y_oh)
         for i in range(num_batches):
             lower_bound = i * batch_size
             upper_bound = min((i + 1) * batch_size, train_x.shape[0])
             batch = (train_x[lower_bound:upper_bound, ...], train_y_oh[lower_bound:upper_bound, ...])
 
+            train_step.run(feed_dict={x: batch[0], y_: batch[1]})
+
             if i % 100 == 0:
                 train_accuracy = accuracy.eval(feed_dict={x:batch[0], y_: batch[1]})
                 print("epoch %d, step %d/%d, training accuracy %g"%(epoch, i, N//batch_size, train_accuracy))
                 draw_conv_filters(epoch, i, W_conv1.eval(), SAVE_DIR)
-
-            train_step.run(feed_dict={x: batch[0], y_: batch[1]})
-
-        # valid_acc, _ = evaluate(valid_y, np.argmax(y.eval(feed_dict={x: valid_x}), axis=1), num_classes)
-        # valid_acc, _ = evaluate(train_y, np.argmax(y.eval(feed_dict={x: train_x}), axis=1), num_classes)
-        # plot_data['train_acc'].append(train_accuracy)
-        # plot_data['valid_acc'].append(valid_acc)
-        # plot_data['lr'].append(learning_rate.eval())
-        # plot_training_progress(SAVE_DIR, plot_data)
 
     print("test accuracy %g"%accuracy.eval(feed_dict={
     x: test_x, y_: test_y_oh}))
