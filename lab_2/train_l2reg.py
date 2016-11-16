@@ -9,7 +9,7 @@ import nn
 import layers
 
 DATA_DIR = '/Users/domagoj/fer/deep-learning/lab_2/data'
-SAVE_DIR = '/Users/domagoj/fer/deep-learning/lab_2/save'
+SAVE_DIR = '/Users/domagoj/fer/deep-learning/lab_2/save/zad_2'
 
 config = {}
 config['max_epochs'] = 8
