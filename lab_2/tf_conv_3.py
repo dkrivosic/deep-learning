@@ -87,8 +87,8 @@ y = tf.matmul(h_3, W_fc2) + b_fc2
 # Training
 with tf.Session() as sess:
     cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, y_) +
-        weight_decay * tf.nn.l2_loss(W_conv1) + weight_decay * tf.nn.l2_loss(W_conv2) +
-        weight_decay * tf.nn.l2_loss(W_fc1) + weight_decay * tf.nn.l2_loss(W_fc2))
+        weight_decay * (tf.nn.l2_loss(W_conv1)**2 + tf.nn.l2_loss(W_conv2)**2 +
+                        tf.nn.l2_loss(W_fc1)**2 + tf.nn.l2_loss(W_fc2)**2))
     train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy, global_step=global_step)
     correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
