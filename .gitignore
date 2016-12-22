@@ -5,3 +5,5 @@ lab_1/__pycache__
 lab_2/build/
 lab_2/im2col_cython.c
 lab_2/im2col_cython.cpython-35m-darwin.so
+lab_2/data
+lab_2/save
