@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import tensorflow as tf
 import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
@@ -7,7 +5,7 @@ from PIL import Image
 from utils import tile_raster_images
 import math
 import matplotlib.pyplot as plt
-
+import pickle
 
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 trX, trY, teX, teY = mnist.train.images, mnist.train.labels, mnist.test.images,\
@@ -129,6 +127,7 @@ with tf.Session(graph=g1) as sess:
     w1s = w1.eval()
     vb1s = vb1.eval()
     hb1s = hb1.eval()
+    pickle.dump((w1s, vb1s, hb1s), open('weights.pickle', 'wb'))
     vr, h1_probs, h1s = sess.run([v1_prob, h1_prob, h1], feed_dict={X1: teX[0:2,:]})
 
 # vizualizacija težina
