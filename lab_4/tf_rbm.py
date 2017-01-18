@@ -87,7 +87,7 @@ with g1.as_default():
         h1 = sample_prob(h1_prob) # [? x Nh]
 
     # pozitivna faza
-    w1_positive_grad = tf.matmul(X1, h1, transpose_a=True) # h0?
+    w1_positive_grad = tf.matmul(X1, h0, transpose_a=True)
 
     # negativna faza
     w1_negative_grad = tf.matmul(v1, h1, transpose_a=True)
@@ -128,11 +128,11 @@ with tf.Session(graph=g1) as sess:
     vb1s = vb1.eval()
     hb1s = hb1.eval()
     pickle.dump((w1s, vb1s, hb1s), open('weights.pickle', 'wb'))
-    vr, h1_probs, h1s = sess.run([v1_prob, h1_prob, h1], feed_dict={X1: teX[0:2,:]})
+    vr, h1_probs, h1s = sess.run([v1_prob, h1_prob, h1], feed_dict={X1: teX[0:20, :]})
 
 # vizualizacija težina
 draw_weights(w1s, v_shape, Nh)
-plt.show()
 
 # vizualizacija rekonstrukcije i stanja
-# draw_reconstructions(teX, vr, h1s, v_shape, h1_shape)
+draw_reconstructions(teX, vr, h1s, v_shape, h1_shape)
+plt.show()
