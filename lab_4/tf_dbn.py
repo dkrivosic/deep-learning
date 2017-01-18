@@ -97,15 +97,6 @@ with g2.as_default():
         h3_prob = tf.nn.softmax(tf.matmul(v3, w2) + hb2)
         h3 = sample_prob(h3_prob)
 
-    # print('vb1a', vb1a.get_shape())
-    # print('hb1a', hb1a.get_shape())
-    # print('w1', w1a.get_shape())
-    # print('w2', w2.get_shape())
-    # print('v2', v2.get_shape())
-    # print('h2', h2.get_shape())
-    # print('v3', v3.get_shape())
-    # print('h3', h3.get_shape())
-
     w2_positive_grad = tf.matmul(v2, h2, transpose_a=True)
     w2_negative_grad = tf.matmul(v3, h3, transpose_a=True)
 
@@ -145,6 +136,8 @@ with tf.Session(graph=g2) as sess:
 
     w2s, vb2s, hb2s = sess.run([w2, vb2, hb2], feed_dict={X2: batch})
     vr2, h3_probs, h3s = sess.run([v5_prob, h3_prob, h3], feed_dict={X2: teX[0:50,:]})
+
+    pickle.dump((w1s, w2s, hb1s, vb1s, hb2s, vb2s), open('weights_2.pickle', 'wb'))
 
 # vizualizacija težina
 draw_weights(w2s, h1_shape, Nh2, interpolation="nearest")
