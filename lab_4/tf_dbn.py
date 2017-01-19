@@ -69,7 +69,7 @@ h1_shape = (10,10)
 Nh2 = 100
 h2_shape = (10,10)
 
-gibbs_sampling_steps = 4
+gibbs_sampling_steps = 2
 alpha = 0.1
 
 g2 = tf.Graph()
@@ -119,7 +119,7 @@ with g2.as_default():
     initialize2 = tf.initialize_all_variables()
 
 batch_size = 100
-epochs = 5
+epochs = 100
 n_samples = mnist.train.num_examples
 
 total_batch = int(n_samples / batch_size) * epochs

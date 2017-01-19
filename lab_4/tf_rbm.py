@@ -81,10 +81,10 @@ with g1.as_default():
     h1 = h0
 
     for step in range(gibbs_sampling_steps):
-        v1_prob = tf.nn.sigmoid(tf.matmul(h1, w1, transpose_b=True) + vb1) # [? x Nv]
-        v1 = sample_prob(v1_prob) # [? x Nv]
-        h1_prob = tf.nn.sigmoid(tf.matmul(v1, w1) + hb1) # [? x Nh]
-        h1 = sample_prob(h1_prob) # [? x Nh]
+        v1_prob = tf.nn.sigmoid(tf.matmul(h1, w1, transpose_b=True) + vb1)
+        v1 = sample_prob(v1_prob)
+        h1_prob = tf.nn.sigmoid(tf.matmul(v1, w1) + hb1)
+        h1 = sample_prob(h1_prob)
 
     # pozitivna faza
     w1_positive_grad = tf.matmul(X1, h0, transpose_a=True)
@@ -110,7 +110,7 @@ with g1.as_default():
     initialize1 = tf.initialize_all_variables()
 
 batch_size = 100
-epochs = 5
+epochs = 100
 n_samples = mnist.train.num_examples
 
 total_batch = int(n_samples / batch_size) * epochs

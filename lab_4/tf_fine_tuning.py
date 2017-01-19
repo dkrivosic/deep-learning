@@ -54,26 +54,26 @@ with g3.as_default():
     hb2a = tf.Variable(hb2s)
 
     # wake pass
-    h1_up_prob = tf.nn.softmax(tf.matmul(X3, w1_up) + hb1_up)
+    h1_up_prob = tf.nn.sigmoid(tf.matmul(X3, w1_up) + hb1_up)
     h1_up = sample_prob(h1_up_prob) # s^{(n)} u pripremi
-    v1_up_down_prob = tf.nn.softmax(tf.matmul(h1_up, w1_down) + vb1_down)
+    v1_up_down_prob = tf.nn.sigmoid(tf.matmul(h1_up, w1_down) + vb1_down)
     v1_up_down = sample_prob(v1_up_down_prob) # s^{(n-1)\mathit{novo}} u pripremi
 
     # top RBM Gibs passes
-    h2_up_prob = tf.nn.softmax(tf.matmul(h1_up, w2a) + hb2a)
+    h2_up_prob = tf.nn.sigmoid(tf.matmul(h1_up, w2a) + hb2a)
     h2_up = sample_prob(h2_up_prob)
     h4 = h2_up
 
     for step in range(gibbs_sampling_steps):
-        h1_down_prob = tf.nn.softmax(tf.matmul(h4, w2a) + hb1_down)
+        h1_down_prob = tf.nn.sigmoid(tf.matmul(h4, w2a) + hb1_down)
         h1_down = sample_prob(h1_down_prob)
-        h4_prob = tf.nn.softmax(tf.matmul(h1_down, w2a) + hb2a)
+        h4_prob = tf.nn.sigmoid(tf.matmul(h1_down, w2a) + hb2a)
         h4 = sample_prob(h4_prob)
 
     # sleep pass
-    v1_down_prob = tf.nn.softmax(tf.matmul(h1_down, w1_down) + vb1_down)
+    v1_down_prob = tf.nn.sigmoid(tf.matmul(h1_down, w1_down) + vb1_down)
     v1_down = sample_prob(v1_down_prob) # s^{(n-1)} u pripremi
-    h1_down_up_prob = tf.nn.softmax(tf.matmul(v1_down, w1_up) + hb1_up)
+    h1_down_up_prob = tf.nn.sigmoid(tf.matmul(v1_down, w1_up) + hb1_up)
     h1_down_up = sample_prob(h1_down_up_prob) # s^{(n)\mathit{novo}} u pripremi
 
 
@@ -101,7 +101,7 @@ with g3.as_default():
     initialize3 = tf.initialize_all_variables()
 
 batch_size = 100
-epochs = 5
+epochs = 100
 n_samples = mnist.train.num_examples
 
 total_batch = int(n_samples / batch_size) * epochs
