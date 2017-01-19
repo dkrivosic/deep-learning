@@ -84,17 +84,17 @@ with g2.as_default():
     hb2 = bias([Nh2])
 
     # vidljivi sloj drugog RBM-a
-    v2_prob = tf.nn.softmax(tf.matmul(X2, w1a) + hb1a)
+    v2_prob = tf.nn.sigmoid(tf.matmul(X2, w1a) + hb1a)
     v2 = sample_prob(v2_prob)
     # skriveni sloj drugog RBM-a
-    h2_prob = tf.nn.softmax(tf.matmul(v2, w2) + hb2)
+    h2_prob = tf.nn.sigmoid(tf.matmul(v2, w2) + hb2)
     h2 = sample_prob(h2_prob)
     h3 = h2
 
     for step in range(gibbs_sampling_steps):
-        v3_prob = tf.nn.softmax(tf.matmul(h3, w2, transpose_b=True) + vb2)
+        v3_prob = tf.nn.sigmoid(tf.matmul(h3, w2, transpose_b=True) + vb2)
         v3 = sample_prob(v3_prob)
-        h3_prob = tf.nn.softmax(tf.matmul(v3, w2) + hb2)
+        h3_prob = tf.nn.sigmoid(tf.matmul(v3, w2) + hb2)
         h3 = sample_prob(h3_prob)
 
     w2_positive_grad = tf.matmul(v2, h2, transpose_a=True)
@@ -109,9 +109,9 @@ with g2.as_default():
     out2 = (update_w2, update_vb2, update_hb2)
 
     # rekonsturkcija ulaza na temelju krovnog skrivenog stanja h3
-    v4_prob = tf.nn.softmax(tf.matmul(h3, w2, transpose_b=True) + hb1a)
+    v4_prob = tf.nn.sigmoid(tf.matmul(h3, w2, transpose_b=True) + hb1a)
     v4 = sample_prob(v4_prob)
-    v5_prob = tf.nn.softmax(tf.matmul(v4, w1a, transpose_b=True) + vb1a)
+    v5_prob = tf.nn.sigmoid(tf.matmul(v4, w1a, transpose_b=True) + vb1a)
 
     err2 = X2 - v5_prob
     err_sum2 = tf.reduce_mean(err2 * err2)
@@ -119,7 +119,7 @@ with g2.as_default():
     initialize2 = tf.initialize_all_variables()
 
 batch_size = 100
-epochs = 100
+epochs = 5
 n_samples = mnist.train.num_examples
 
 total_batch = int(n_samples / batch_size) * epochs

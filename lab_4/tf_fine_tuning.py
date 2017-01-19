@@ -101,7 +101,7 @@ with g3.as_default():
     initialize3 = tf.initialize_all_variables()
 
 batch_size = 100
-epochs = 100
+epochs = 5
 n_samples = mnist.train.num_examples
 
 total_batch = int(n_samples / batch_size) * epochs
